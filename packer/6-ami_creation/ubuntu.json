@@ -1,0 +1,43 @@
+{
+    "variables": {
+        "access_key": "",
+        "secret_key": "",
+        "sftpuser_password": "",
+        "s3_config_bucket": "",
+        "iam_instance_profile": "",
+        "vpcid_to_build_in": "",
+        "subnetid_to_build_in": "",
+        "tag_application": "",
+        "tag_contact_email": "",
+        "tag_customer": "",
+        "tag_team": "",
+        "tag_environment": ""
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "access_key": "{{user `access_key`}}",
+        "secret_key": "{{user `secret_key`}}",
+        "region": "us-east-1",
+        "source_ami": "ami-41e0b93b",
+        "instance_type": "t2.medium",
+        "ssh_username": "ubuntu",
+        "ami_name": "sftp {{timestamp}}",
+        "iam_instance_profile": "{{user `iam_instance_profile`}}",
+        "vpc_id": "{{user `vpcid_to_build_in`}}",
+        "subnet_id": "{{user `subnetid_to_build_in`}}",
+        "run_tags": {
+            "Name": "sftp packer ami builder",
+            "application": "{{user `tag_application`}}",
+            "contact-email": "{{user `tag_contact_email`}}",
+            "customer": "{{user `tag_customer`}}",
+            "team": "{{user `tag_team`}}",
+            "environment": "{{user `tag_environment`}}"
+        }
+    }],
+    "provisioners": [{
+        "type": "shell",
+        "environment_vars": ["SFTPUSER_PASSWORD={{user `sftpuser_password`}}", "S3_BUCKET={{user `s3_config_bucket`}}"],
+        "execute_command": "{{.Vars}} bash '{{.Path}}'",
+        "script": "provision.sh"
+    }]
+}
