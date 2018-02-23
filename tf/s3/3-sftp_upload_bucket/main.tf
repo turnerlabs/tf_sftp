@@ -1,7 +1,7 @@
 # this section stores the terraform state for the s3 bucket in the terraform state bucket we created in step 1.
 terraform {
   backend "s3" {
-    bucket = "terraform-state-bucket-sftp-ca" # the terraform state bucket has to be hand entered unfortunately
+    bucket = "" # the terraform state bucket has to be hand entered unfortunately
     key    = "s3/sftp_upload_bucket/terraform.tfstate"
     region = "us-east-1"
     encrypt = "true"
