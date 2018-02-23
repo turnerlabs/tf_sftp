@@ -1,7 +1,7 @@
 # this section stores the terraform state for the s3 bucket in the terraform state bucket we created in step 1.
 terraform {
   backend "s3" {
-    bucket = "" # the terraform state bucket has to be hand entered unfortunately
+    bucket = "terraform-state-bucket-sftp-ca" # the terraform state bucket has to be hand entered unfortunately
     key    = "ec2/sftp_server/terraform.tfstate"
     region = "us-east-1"
     encrypt = "true"
@@ -109,11 +109,24 @@ resource "aws_route" "rt_sftpserver" {
   gateway_id              = "${aws_internet_gateway.igw_sftpserver.id}"
 }
 
-# Associate us-east-1a to the route table.  May need to add others as well
 resource "aws_route_table_association" "rta_sftpserver" {
   depends_on      = ["aws_vpc.vpc_sftpserver", "aws_subnet.sn_sftpserver_useast1a"]
   
   subnet_id       = "${aws_subnet.sn_sftpserver_useast1a.id}"
+  route_table_id  = "${aws_vpc.vpc_sftpserver.main_route_table_id}"
+}
+
+resource "aws_route_table_association" "rtb_sftpserver" {
+  depends_on      = ["aws_vpc.vpc_sftpserver", "aws_subnet.sn_sftpserver_useast1b"]
+  
+  subnet_id       = "${aws_subnet.sn_sftpserver_useast1b.id}"
+  route_table_id  = "${aws_vpc.vpc_sftpserver.main_route_table_id}"
+}
+
+resource "aws_route_table_association" "rtc_sftpserver" {
+  depends_on      = ["aws_vpc.vpc_sftpserver", "aws_subnet.sn_sftpserver_useast1c"]
+  
+  subnet_id       = "${aws_subnet.sn_sftpserver_useast1c.id}"
   route_table_id  = "${aws_vpc.vpc_sftpserver.main_route_table_id}"
 }
 
@@ -234,6 +247,7 @@ resource "aws_launch_configuration" "lc_sftpserver" {
   instance_type         = "${var.instance_type}"
   key_name              = "${var.key_name}"
   iam_instance_profile  = "${var.iam_instance_profile}"
+  associate_public_ip_address = true
 
   security_groups       = ["${aws_security_group.sg_instance_sftpserver.id}"]
 }
